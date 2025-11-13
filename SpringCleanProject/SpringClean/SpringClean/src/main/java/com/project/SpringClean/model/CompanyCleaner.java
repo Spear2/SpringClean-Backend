@@ -11,10 +11,10 @@ public class CompanyCleaner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long companyCleanerId;
-
     private String companyName;
-    private String contactNumber;
+    private String email;
+    private String phoneNumber;
     private String address;
-
+    private String password;
 
 }

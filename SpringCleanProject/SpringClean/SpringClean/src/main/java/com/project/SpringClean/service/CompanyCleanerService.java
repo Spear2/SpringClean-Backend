@@ -29,8 +29,10 @@ public class CompanyCleanerService {
         CompanyCleaner companyCleaner = companyCleanerRepository.findById(id).orElse(null);
         if (companyCleaner != null) {
             companyCleaner.setCompanyName(companyCleanerDetails.getCompanyName());
-            companyCleaner.setContactNumber(companyCleanerDetails.getContactNumber());
+            companyCleaner.setEmail(companyCleanerDetails.getEmail());
+            companyCleaner.setPhoneNumber(companyCleanerDetails.getPhoneNumber());
             companyCleaner.setAddress(companyCleanerDetails.getAddress());
+            companyCleaner.setPassword(companyCleanerDetails.getPassword());
             return companyCleanerRepository.save(companyCleaner);
         }
         return null;
