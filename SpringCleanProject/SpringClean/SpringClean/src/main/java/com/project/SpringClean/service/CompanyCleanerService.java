@@ -2,13 +2,14 @@ package com.project.SpringClean.service;
 
 import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.repository.CompanyCleanerRepository;
+import com.project.SpringClean.serviceinterface.CompanyCleanerServiceInt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class CompanyCleanerService {
+public class CompanyCleanerService implements CompanyCleanerServiceInt {
 
     @Autowired
     private CompanyCleanerRepository companyCleanerRepository;
@@ -17,28 +18,34 @@ public class CompanyCleanerService {
         return companyCleanerRepository.findAll();
     }
 
-    public CompanyCleaner getCompanyCleanerById(Long id) {
-        return companyCleanerRepository.findById(id).orElse(null);
-    }
-
-    public CompanyCleaner createCompanyCleaner(CompanyCleaner companyCleaner) {
-        return companyCleanerRepository.save(companyCleaner);
-    }
-
-    public CompanyCleaner updateCompanyCleaner(Long id, CompanyCleaner companyCleanerDetails) {
-        CompanyCleaner companyCleaner = companyCleanerRepository.findById(id).orElse(null);
-        if (companyCleaner != null) {
-            companyCleaner.setCompanyName(companyCleanerDetails.getCompanyName());
-            companyCleaner.setEmail(companyCleanerDetails.getEmail());
-            companyCleaner.setPhoneNumber(companyCleanerDetails.getPhoneNumber());
-            companyCleaner.setAddress(companyCleanerDetails.getAddress());
-            companyCleaner.setPassword(companyCleanerDetails.getPassword());
-            return companyCleanerRepository.save(companyCleaner);
+    @Override
+    public CompanyCleaner registerCleaner(CompanyCleaner cleaner) {
+        if (companyCleanerRepository.existsByEmail(cleaner.getEmail())) {
+            throw new RuntimeException("Email already registered");
         }
-        return null;
+        return companyCleanerRepository.save(cleaner);
     }
 
-    public void deleteCompanyCleaner(Long id) {
-        companyCleanerRepository.deleteById(id);
+    @Override
+    public CompanyCleaner login(String email, String password) {
+        CompanyCleaner cleaner = companyCleanerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email not found"));
+
+        if(email == null || password == null) {
+            throw new RuntimeException("Fields Should not be empty");
+        }
+
+        if (!cleaner.getPassword().equals(password)) {
+            throw new RuntimeException("Incorrect password");
+        }
+
+        return cleaner;
     }
+
+    @Override
+    public CompanyCleaner getCompanyCleanerById(Long id) {
+        return companyCleanerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cleaner not found"));
+    }
+
 }
