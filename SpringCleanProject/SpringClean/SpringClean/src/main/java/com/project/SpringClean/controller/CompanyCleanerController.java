@@ -1,9 +1,11 @@
 package com.project.SpringClean.controller;
 
 import com.project.SpringClean.dto.CompanyCleanerLoginRequest;
+import com.project.SpringClean.dto.CompanyCleanerLoginResponse;
 import com.project.SpringClean.dto.CustomerLoginRequest;
 import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.repository.CompanyCleanerRepository;
+import com.project.SpringClean.security.JwtUtil;
 import com.project.SpringClean.service.CompanyCleanerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class CompanyCleanerController {
     private CompanyCleanerService companyCleanerService;
 
     @Autowired
+    JwtUtil jwt;
+
+    @Autowired
     private CompanyCleanerRepository companyCleanerRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -35,49 +40,69 @@ public class CompanyCleanerController {
     }
 
 
+
     @PostMapping("/register")
-    public ResponseEntity<?> registerCustomer(@Valid @RequestBody CompanyCleaner cleaner) {
-        if (companyCleanerRepository.existsByEmail(cleaner.getEmail())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email already registered."));
-        }
-
-        companyCleanerRepository.save(cleaner);
-        return ResponseEntity.ok(Map.of("message", "Customer registered successfully!"));
+    public ResponseEntity<?> register(@RequestBody CompanyCleaner cleaner) {
+        CompanyCleaner saved = companyCleanerService.registerCleaner(cleaner);
+        return ResponseEntity.ok(saved);
     }
-
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody CompanyCleanerLoginRequest request) {
+        CompanyCleaner cleaner = companyCleanerService.login(request.getEmail(), request.getPassword());
 
-        if(request.getEmail() == null || request.getPassword() == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email and password required"));
-        }
+        String fakeToken = "token-" + cleaner.getCompanyCleanerId();  // For now, manually generate
 
-        Optional<CompanyCleaner> cleaneropt = companyCleanerRepository.findByEmail(request.getEmail());
-
-        if (cleaneropt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Email not found!"));
-        }
-
-        CompanyCleaner cleaner = cleaneropt.get();
-
-        // Compare password
-        if (!cleaner.getPassword().equals(request.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Incorrect password!"));
-        }
-
-        // Success
         return ResponseEntity.ok(
-                Map.of(
-                        "id", cleaner.getCompanyCleanerId(),
-                        "companyName", cleaner.getCompanyName(),
-                        "email", cleaner.getEmail(),
-                        "message", "Login successful"
+                new CompanyCleanerLoginResponse(
+                        cleaner.getCompanyCleanerId(),
+                        fakeToken,
+                        "Login successful"
                 )
         );
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCleaner(@PathVariable Long id) {
+        CompanyCleaner cleaner = companyCleanerService.getCompanyCleanerById(id);
+        return ResponseEntity.ok(cleaner);
+    }
+
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody CompanyCleanerLoginRequest request) {
+//
+//        if(request.getEmail() == null || request.getPassword() == null) {
+//            return ResponseEntity.badRequest().body(Map.of("message", "Email and password required"));
+//        }
+//
+//        Optional<CompanyCleaner> cleaneropt = companyCleanerRepository.findByEmail(request.getEmail());
+//
+//        if (cleaneropt.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body(Map.of("message", "Email not found!"));
+//        }
+//
+//        CompanyCleaner cleaner = cleaneropt.get();
+//
+//        // Compare password
+//        if (!cleaner.getPassword().equals(request.getPassword())) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body(Map.of("message", "Incorrect password!"));
+//        }
+//        String token = jwt.generateToken(cleaner.getEmail(), "cleaner");
+//        // Success
+//        return ResponseEntity.ok(
+//                Map.of(
+//                        "token",token,
+//                        "id", cleaner.getCompanyCleanerId(),
+//                        "companyName", cleaner.getCompanyName(),
+//                        "email", cleaner.getEmail(),
+//                        "message", "Login successful"
+//                )
+//        );
+//    }
+
+
 
 
 }
