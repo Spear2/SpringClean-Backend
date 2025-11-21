@@ -49,7 +49,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCleaner(@PathVariable Long id) {
+    public ResponseEntity<?> getCustomer(@PathVariable Long id) {
         Customer customer = customerService.getCustomerById(id);
         return ResponseEntity.ok(customer);
     }

@@ -1,44 +1,63 @@
 package com.project.SpringClean.service;
 
+import com.project.SpringClean.dto.BookingRequest;
 import com.project.SpringClean.model.Booking;
+import com.project.SpringClean.model.CompanyCleaner;
+import com.project.SpringClean.model.Customer;
 import com.project.SpringClean.repository.BookingRepository;
+import com.project.SpringClean.repository.CompanyCleanerRepository;
+import com.project.SpringClean.repository.CustomerRepository;
+import com.project.SpringClean.serviceinterface.BookingServiceInt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
-public class BookingService {
+public class BookingService implements BookingServiceInt {
 
     @Autowired
-    private BookingRepository bookingRepository;
+    private BookingRepository bookingRepo;
+    @Autowired
+    private CustomerRepository customerRepo;
+    @Autowired
+    private CompanyCleanerRepository cleanerRepo;
 
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+    public BookingService(BookingRepository bookingRepo,
+                              CustomerRepository customerRepo,
+                              CompanyCleanerRepository cleanerRepo) {
+        this.bookingRepo = bookingRepo;
+        this.customerRepo = customerRepo;
+        this.cleanerRepo = cleanerRepo;
     }
 
-    public Booking getBookingById(Long id) {
-        return bookingRepository.findById(id).orElse(null);
+    @Override
+    public Booking createBooking(BookingRequest request, Long customerId) {
+        // Validate customer
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        // Validate cleaner
+        CompanyCleaner cleaner = cleanerRepo.findById(request.getCleanerId())
+                .orElseThrow(() -> new RuntimeException("Cleaner not found"));
+
+        // Parse date/time
+        LocalDate date = LocalDate.parse(request.getDate());
+        LocalTime time = LocalTime.parse(request.getTime());
+
+        Booking booking = new Booking();
+        booking.setCustomer(customer);
+        booking.setCompanyCleaner(cleaner);
+        booking.setAddress(request.getAddress());
+        booking.setBookingDate(date);
+        booking.setBookingTime(time);
+        booking.setHours(request.getHours());
+        booking.setMinutes(request.getMinutes());
+        booking.setStatus("PENDING");
+
+        return bookingRepo.save(booking);
     }
 
-    public Booking createBooking(Booking booking) {
-        return bookingRepository.save(booking);
-    }
-
-    public Booking updateBooking(Long id, Booking bookingDetails) {
-        Booking booking = bookingRepository.findById(id).orElse(null);
-        if (booking != null) {
-            booking.setBookingDate(bookingDetails.getBookingDate());
-            booking.setBookingTime(bookingDetails.getBookingTime());
-            booking.setDuration(bookingDetails.getDuration());
-            booking.setCustomer(bookingDetails.getCustomer());
-            booking.setCompanyCleaner(bookingDetails.getCompanyCleaner());
-            return bookingRepository.save(booking);
-        }
-        return null;
-    }
-
-    public void deleteBooking(Long id) {
-        bookingRepository.deleteById(id);
-    }
 }

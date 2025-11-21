@@ -22,8 +22,10 @@ public class Booking {
     @JoinColumn(name = "companyCleanerId", nullable = false)
     private CompanyCleaner companyCleaner;
 
+    private String address;
     private LocalDate bookingDate;
     private LocalTime bookingTime;
-    private int duration;
+    private Integer hours;
+    private Integer minutes;
     private String status;
 }
