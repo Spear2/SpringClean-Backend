@@ -1,8 +1,13 @@
 package com.project.SpringClean.controller;
 
+import com.project.SpringClean.dto.BookingRequest;
 import com.project.SpringClean.model.Booking;
+import com.project.SpringClean.model.Customer;
 import com.project.SpringClean.service.BookingService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -13,28 +18,17 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    @GetMapping
-    public List<Booking> getAllBookings() {
-        return bookingService.getAllBookings();
-    }
-
-    @GetMapping("/{id}")
-    public Booking getBookingById(@PathVariable Long id) {
-        return bookingService.getBookingById(id);
-    }
-
-    @PostMapping
-    public Booking createBooking(@RequestBody Booking booking) {
-        return bookingService.createBooking(booking);
-    }
-
-    @PutMapping("/{id}")
-    public Booking updateBooking(@PathVariable Long id, @RequestBody Booking booking) {
-        return bookingService.updateBooking(id, booking);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteBooking(@PathVariable Long id) {
-        bookingService.deleteBooking(id);
+    @PostMapping("/{customerId}")
+    public ResponseEntity<?> createBooking(
+            @RequestBody BookingRequest request,
+            @PathVariable Long customerId
+    ) {
+        try {
+            Booking saved = bookingService.createBooking(request, customerId);
+            return ResponseEntity.ok(saved);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 }
+
