@@ -2,12 +2,14 @@ package com.project.SpringClean.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Payment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
@@ -16,6 +18,8 @@ public class Payment {
     @JoinColumn(name = "bookingId", nullable = false)
     private Booking booking;
 
-    private double paymentAmount;
-    private LocalDate paymentDate;
+    private double amount;
+    private String method;
+    private String status;
+    private LocalDateTime paidAt;
 }

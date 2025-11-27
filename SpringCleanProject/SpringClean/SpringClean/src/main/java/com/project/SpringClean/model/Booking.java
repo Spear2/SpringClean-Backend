@@ -21,11 +21,12 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "companyCleanerId", nullable = false)
     private CompanyCleaner companyCleaner;
-
+    private String serviceType;
     private String address;
     private LocalDate bookingDate;
     private LocalTime bookingTime;
     private Integer hours;
     private Integer minutes;
     private String status;
+    private Double totalPrice;
 }

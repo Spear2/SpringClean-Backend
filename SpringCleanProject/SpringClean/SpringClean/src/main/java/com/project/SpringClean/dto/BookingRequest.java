@@ -11,10 +11,12 @@ import java.time.LocalTime;
 @Getter
 @Setter
 public class BookingRequest {
-    private Long cleanerId;
+    private Long companyCleanerId;
+    private String serviceType;
     private String address;
     private String date; // ISO yyyy-MM-dd
     private String time; // HH:mm
     private Integer hours;
     private Integer minutes;
+    private Double totalPrice;
 }
