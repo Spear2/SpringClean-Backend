@@ -18,5 +18,5 @@ public class BookingRequest {
     private String time; // HH:mm
     private Integer hours;
     private Integer minutes;
-    private Double totalPrice;
+    private double totalPrice;
 }

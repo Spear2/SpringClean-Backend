@@ -1,9 +1,11 @@
 package com.project.SpringClean.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -21,6 +23,16 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "companyCleanerId", nullable = false)
     private CompanyCleaner companyCleaner;
+
+    @ManyToMany
+    @JsonBackReference
+    @JoinTable(
+            name = "booking_cleaners",
+            joinColumns = @JoinColumn(name = "booking_id"),
+            inverseJoinColumns = @JoinColumn(name = "cleaner_id")
+    )
+    private List<Cleaner> assignedCleaners;
+
     private String serviceType;
     private String address;
     private LocalDate bookingDate;

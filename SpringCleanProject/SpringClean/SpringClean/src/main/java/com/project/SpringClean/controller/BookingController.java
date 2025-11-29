@@ -35,7 +35,8 @@ public class BookingController {
         try {
             Booking saved = bookingService.createBooking(request, customerId);
             return ResponseEntity.ok(saved);
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace(); // <----- ADD THIS
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }

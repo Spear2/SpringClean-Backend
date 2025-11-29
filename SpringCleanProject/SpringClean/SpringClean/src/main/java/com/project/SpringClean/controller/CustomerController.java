@@ -2,6 +2,7 @@ package com.project.SpringClean.controller;
 
 import com.project.SpringClean.dto.CustomerLoginRequest;
 import com.project.SpringClean.dto.CustomerLoginResponse;
+import com.project.SpringClean.dto.CustomerUpdateRequest;
 import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.model.Customer;
 import com.project.SpringClean.repository.CustomerRepository;
@@ -46,6 +47,14 @@ public class CustomerController {
         return ResponseEntity.ok(
                 new CustomerLoginResponse(customer.getCustomerId() ,fakeToken,"Login Successful")
         );
+    }
+
+    @PutMapping("/{customerId}")
+    public ResponseEntity<?> updateCustomerProfile(
+            @PathVariable Long customerId,
+            @RequestBody CustomerUpdateRequest req) {
+        Customer updated = customerService.updateCustomer(customerId, req);
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/{id}")
