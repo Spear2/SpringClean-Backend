@@ -6,6 +6,6 @@ import com.project.SpringClean.model.CompanyCleaner;
 
 public interface CompanyCleanerServiceInt {
     CompanyCleaner getCompanyCleanerById(Long id);
-    CompanyCleaner registerCleaner(CompanyCleaner cleaner);
+    CompanyCleaner registerCompanyCleaner(CompanyCleaner cleaner);
     CompanyCleaner login(String email, String password);
 }
