@@ -19,7 +19,7 @@ public class CompanyCleanerService implements CompanyCleanerServiceInt {
     }
 
     @Override
-    public CompanyCleaner registerCleaner(CompanyCleaner cleaner) {
+    public CompanyCleaner registerCompanyCleaner(CompanyCleaner cleaner) {
         if (companyCleanerRepository.existsByEmail(cleaner.getEmail())) {
             throw new RuntimeException("Email already registered");
         }

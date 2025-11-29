@@ -3,6 +3,8 @@ package com.project.SpringClean.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -17,4 +19,6 @@ public class CompanyCleaner {
     private String address;
     private String password;
 
+    @OneToMany(mappedBy = "companyCleaner", cascade = CascadeType.ALL)
+    private List<Cleaner> cleaners;
 }
