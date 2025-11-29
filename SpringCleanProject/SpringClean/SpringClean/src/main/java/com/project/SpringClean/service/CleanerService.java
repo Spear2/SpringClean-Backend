@@ -23,7 +23,7 @@ public class CleanerService implements CleanerServiceInt {
     public Cleaner registerCleaner(CleanerRegistration dto) {
 
         CompanyCleaner company = companyCleanerRepository
-                .findById(dto.getCompany_id())
+                .findById(dto.getCompanyCleanerId())
                 .orElseThrow(() -> new RuntimeException("Company not found"));
 
         Cleaner cleaner = new Cleaner();

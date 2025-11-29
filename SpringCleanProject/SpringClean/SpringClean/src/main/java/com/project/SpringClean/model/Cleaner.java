@@ -1,6 +1,7 @@
 package com.project.SpringClean.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,15 +13,17 @@ public class Cleaner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cleanerId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")   // foreign key column
+    @ManyToOne
+    @JoinColumn(name = "company_cleaner_id")
+    @JsonBackReference
     private CompanyCleaner companyCleaner;
 
     private String cleanerName;
     private String email;
-    private Long phoneNumber;
+    private String phoneNumber;
     private String address;
     private String password;
+    private boolean available = true;
 
 
 }

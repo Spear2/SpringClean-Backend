@@ -1,5 +1,6 @@
 package com.project.SpringClean.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,5 +21,6 @@ public class CompanyCleaner {
     private String password;
 
     @OneToMany(mappedBy = "companyCleaner", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Cleaner> cleaners;
 }

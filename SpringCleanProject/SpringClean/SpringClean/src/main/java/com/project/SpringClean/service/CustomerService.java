@@ -1,5 +1,6 @@
 package com.project.SpringClean.service;
 
+import com.project.SpringClean.dto.CustomerUpdateRequest;
 import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.model.Customer;
 import com.project.SpringClean.repository.CustomerRepository;
@@ -41,5 +42,19 @@ public class CustomerService implements CustomerServiceInt {
         }
 
         return customer;
+    }
+
+    public Customer updateCustomer(Long customerId, CustomerUpdateRequest request){
+        Customer customer =  customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        customer.setFirstName(request.getFirstName());
+        customer.setLastName(request.getLastName());
+        customer.setEmail(request.getEmail());
+        customer.setPhoneNumber(request.getPhoneNumber());
+        customer.setAddress(request.getAddress());
+
+        return customerRepository.save(customer);
+
     }
 }

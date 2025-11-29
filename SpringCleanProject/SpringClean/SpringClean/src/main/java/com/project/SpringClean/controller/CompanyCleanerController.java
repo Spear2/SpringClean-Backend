@@ -42,8 +42,8 @@ public class CompanyCleanerController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody CompanyCleaner cleaner) {
-        CompanyCleaner saved = companyCleanerService.registerCompanyCleaner(cleaner);
+    public ResponseEntity<CompanyCleaner> registerCompany(@RequestBody CompanyCleaner companyCleaner) {
+        CompanyCleaner saved = companyCleanerService.registerCompanyCleaner(companyCleaner);
         return ResponseEntity.ok(saved);
     }
 
