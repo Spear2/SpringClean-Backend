@@ -8,4 +8,5 @@ public interface CompanyCleanerServiceInt {
     CompanyCleaner getCompanyCleanerById(Long id);
     CompanyCleaner registerCompanyCleaner(CompanyCleaner cleaner);
     CompanyCleaner login(String email, String password);
+
 }
