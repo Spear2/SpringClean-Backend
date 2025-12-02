@@ -49,6 +49,14 @@ public class BookingController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/company/{companyCleanerId}/bookings")
+    public List<BookingResponse> getCompanyBookings(@PathVariable Long companyCleanerId) {
+        return bookingService.getBookingsByCompany(companyCleanerId)
+                .stream()
+                .map(bookingService::toDTO)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/customer/{customerId}")
     public List<Booking> findByCustomer(@PathVariable Long customerId) {
         return bookingRepository.findByCustomer_CustomerId(customerId);

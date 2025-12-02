@@ -45,7 +45,7 @@ public class CompanyCleanerService implements CompanyCleanerServiceInt {
     @Override
     public CompanyCleaner getCompanyCleanerById(Long id) {
         return companyCleanerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cleaner not found"));
+                .orElseThrow(() -> new RuntimeException("Company not found"));
     }
 
 }

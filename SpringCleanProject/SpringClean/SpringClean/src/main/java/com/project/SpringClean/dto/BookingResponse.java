@@ -14,6 +14,8 @@ public class BookingResponse {
     private String companyName;
     private Long customerId;
     private String serviceType;
+    private String customerLastName;
+    private String customerFirstName;
     private Double totalPrice;
     private String address;
     private LocalDate date;        // Much better than String

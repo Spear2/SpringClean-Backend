@@ -68,41 +68,6 @@ public class CompanyCleanerController {
         return ResponseEntity.ok(cleaner);
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody CompanyCleanerLoginRequest request) {
-//
-//        if(request.getEmail() == null || request.getPassword() == null) {
-//            return ResponseEntity.badRequest().body(Map.of("message", "Email and password required"));
-//        }
-//
-//        Optional<CompanyCleaner> cleaneropt = companyCleanerRepository.findByEmail(request.getEmail());
-//
-//        if (cleaneropt.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                    .body(Map.of("message", "Email not found!"));
-//        }
-//
-//        CompanyCleaner cleaner = cleaneropt.get();
-//
-//        // Compare password
-//        if (!cleaner.getPassword().equals(request.getPassword())) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                    .body(Map.of("message", "Incorrect password!"));
-//        }
-//        String token = jwt.generateToken(cleaner.getEmail(), "cleaner");
-//        // Success
-//        return ResponseEntity.ok(
-//                Map.of(
-//                        "token",token,
-//                        "id", cleaner.getCompanyCleanerId(),
-//                        "companyName", cleaner.getCompanyName(),
-//                        "email", cleaner.getEmail(),
-//                        "message", "Login successful"
-//                )
-//        );
-//    }
-
-
 
 
 }

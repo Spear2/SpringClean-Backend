@@ -122,6 +122,8 @@ public class BookingService implements BookingServiceInt {
         dto.setCompanyCleanerId(booking.getCompanyCleaner().getCompanyCleanerId());
         dto.setCompanyName(booking.getCompanyCleaner().getCompanyName());
         dto.setDate(booking.getBookingDate());
+        dto.setCustomerFirstName(booking.getCustomer().getFirstName());
+        dto.setCustomerLastName(booking.getCustomer().getLastName());
         dto.setTime(booking.getBookingTime());
         dto.setHours(booking.getHours());
         dto.setMinutes(booking.getMinutes());
@@ -136,6 +138,10 @@ public class BookingService implements BookingServiceInt {
 
     public List<Booking> getBookingsByCustomer(Long customerId) {
         return bookingRepo.findByCustomer_CustomerId(customerId);
+    }
+
+    public List<Booking> getBookingsByCompany(Long companyCleanerId) {
+        return bookingRepo.findByCompanyCleaner_CompanyCleanerId(companyCleanerId);
     }
 
     public Booking updateBooking(Long bookingId, BookingUpdateRequest request){
