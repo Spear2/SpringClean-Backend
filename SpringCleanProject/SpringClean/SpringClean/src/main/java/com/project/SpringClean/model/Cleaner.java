@@ -24,6 +24,4 @@ public class Cleaner {
     private String address;
     private String password;
     private boolean available = true;
-
-
 }

@@ -1,9 +1,12 @@
 package com.project.SpringClean.controller;
 
 
+import com.project.SpringClean.dto.CleanerLoginRequest;
+import com.project.SpringClean.dto.CleanerLoginResponse;
 import com.project.SpringClean.dto.CleanerRegistration;
 import com.project.SpringClean.model.Cleaner;
 
+import com.project.SpringClean.model.Customer;
 import com.project.SpringClean.repository.CleanerRepository;
 import com.project.SpringClean.service.CleanerService;
 import com.project.SpringClean.service.CompanyCleanerService;
@@ -25,6 +28,21 @@ public class CleanerController  {
     public ResponseEntity<?> register(@RequestBody CleanerRegistration dto) {
         Cleaner saved = cleanerService.registerCleaner(dto);
         return ResponseEntity.ok(saved);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody CleanerLoginRequest dto) {
+        Cleaner cleaner = cleanerService.login(dto.getEmail(), dto.getPassword());
+        String fakeToken = "token-" + cleaner.getCleanerId();
+
+        return ResponseEntity.ok(
+                new CleanerLoginResponse(cleaner.getCleanerId(), fakeToken, "Login Successfully"));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCleaner(@PathVariable Long id) {
+        Cleaner cleaner = cleanerService.getCleanerById(id);
+        return ResponseEntity.ok(cleaner);
     }
 
 }

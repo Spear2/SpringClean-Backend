@@ -6,4 +6,5 @@ import com.project.SpringClean.model.CompanyCleaner;
 
 public interface CleanerServiceInt {
     Cleaner registerCleaner(CleanerRegistration dto);
+    Cleaner getCleanerById(Long id);
 }
