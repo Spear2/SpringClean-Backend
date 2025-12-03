@@ -17,7 +17,7 @@ public class CustomerService implements CustomerServiceInt {
     @Override
     public Customer getCustomerById(Long id) {
         return customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cleaner not found"));
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
     @Override

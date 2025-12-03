@@ -7,11 +7,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class CleanerLoginRequest {
-    private  String username;
+    private  String email;
     private String password;
 
-    public CleanerLoginRequest(String username, String password) {
-        this.username = username;
+    public CleanerLoginRequest(String email, String password) {
+        this.email = email;
         this.password = password;
     }
 }
