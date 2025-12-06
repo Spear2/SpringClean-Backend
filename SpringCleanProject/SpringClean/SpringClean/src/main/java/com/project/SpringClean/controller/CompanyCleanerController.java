@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.project.SpringClean.model.Cleaner;
+import com.project.SpringClean.repository.CleanerRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,10 @@ public class CompanyCleanerController {
     private CompanyCleanerRepository companyCleanerRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
+    @Autowired
+    private CleanerRepository cleanerRepo;
 
     @GetMapping
     public List<CompanyCleaner> getAllCompanyCleaners() {
@@ -66,6 +72,13 @@ public class CompanyCleanerController {
     public ResponseEntity<?> getCleaner(@PathVariable Long id) {
         CompanyCleaner cleaner = companyCleanerService.getCompanyCleanerById(id);
         return ResponseEntity.ok(cleaner);
+    }
+
+    @GetMapping("/{companyId}/cleaners")
+    public ResponseEntity<?> getCompanyCleaners(@PathVariable Long companyId) {
+        CompanyCleaner company = companyCleanerService.getCompanyCleanerById(companyId);
+        List<Cleaner> cleaners = cleanerRepo.findByCompanyCleaner(company);
+        return ResponseEntity.ok(cleaners);
     }
 
 

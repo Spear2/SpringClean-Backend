@@ -5,6 +5,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+
 
 @Setter
 @Getter
@@ -23,4 +25,6 @@ public class BookingResponse {
     private Integer hours;         // optional
     private Integer minutes;       // optional
     private String status;
+    private List<Long> assignedCleanerIds;
+    private List<String> assignedCleanerNames;
 }

@@ -12,7 +12,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;        // ✅ MISSING IMPORT FIXED
+import java.util.Collections;   // ✅ MISSING IMPORT FIXED
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,84 +28,51 @@ public class BookingService implements BookingServiceInt {
     private CustomerRepository customerRepo;
     @Autowired
     private CleanerRepository cleanerRepo;
-
     @Autowired
     private CompanyCleanerRepository companyCleanerRepo;
-
-
 
     @Override
     @Transactional
     public Booking createBooking(BookingRequest request, Long customerId) {
 
-        // 1. Validate customer
-        Customer customer = customerRepo.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+    Customer customer = customerRepo.findById(customerId)
+            .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        // 2. Validate company
-        CompanyCleaner companyCleaner = companyCleanerRepo.findById(request.getCompanyCleanerId())
-                .orElseThrow(() -> new RuntimeException("Company not found"));
+    CompanyCleaner companyCleaner = companyCleanerRepo.findById(request.getCompanyCleanerId())
+            .orElseThrow(() -> new RuntimeException("Company not found"));
 
-        // 3. Determine number of cleaners based on serviceType
-        int requiredCleaners;
-        switch (request.getServiceType().toLowerCase()) {
-            case "basic":
-                requiredCleaners = 1;
-                break;
-            case "standard":
-                requiredCleaners = 2;
-                break;
-            case "premium":
-                requiredCleaners = 3;
-                break;
-            default:
-                throw new RuntimeException("Invalid service type");
-        }
+    // ✔ Determine required cleaners but do NOT auto-check availability
+    int requiredCleaners = switch (request.getServiceType().toLowerCase()) {
+        case "basic" -> 1;
+        case "standard" -> 2;
+        case "premium" -> 3;
+        default -> throw new RuntimeException("Invalid service type");
+    };
 
-        // 4. Fetch all cleaners of the company
-        List<Cleaner> companyCleanersList = cleanerRepo.findByCompanyCleanerAndAvailableTrue(companyCleaner);
+    // ✔ Parse booking date and time
+    LocalDate bookingDate = LocalDate.parse(request.getDate());
+    LocalTime startTime = LocalTime.parse(request.getTime());
 
-        // 5. Filter available cleaners for requested date and time
-        LocalDate bookingDate = LocalDate.parse(request.getDate());
-        LocalTime startTime = LocalTime.parse(request.getTime());
-        double requestedDuration = request.getHours() + request.getMinutes() / 60.0;
-        LocalTime endTime = startTime.plusMinutes((long)(requestedDuration * 60));
+    // ❌ NO auto availability filtering
+    // ❌ NO auto selecting cleaners
+    // ❌ NO requiredCleaners check
+    // ✔ Booking is created empty and company will assign cleaners
 
-        List<Cleaner> availableCleaners = companyCleanersList.stream()
-                .filter(cleaner -> {
-                    List<Booking> bookingsOnDate = bookingRepo.findByCompanyCleanerAndBookingDate(companyCleaner, bookingDate);
-                    // Cleaner is available if they are not assigned to any overlapping booking
-                    return bookingsOnDate.stream().noneMatch(b ->
-                            b.getAssignedCleaners().contains(cleaner) &&
-                                    timesOverlap(startTime, endTime, b.getBookingTime(), b.getBookingTime().plusMinutes((long)((b.getHours() + b.getMinutes()/60.0)*60)))
-                    );
-                })
-                .collect(Collectors.toList());
+    Booking booking = new Booking();
+    booking.setCustomer(customer);
+    booking.setCompanyCleaner(companyCleaner);
+    booking.setAssignedCleaners(new HashSet<>());
+    booking.setServiceType(request.getServiceType());
+    booking.setAddress(request.getAddress());
+    booking.setBookingDate(bookingDate);
+    booking.setBookingTime(startTime);
+    booking.setHours(request.getHours());
+    booking.setMinutes(request.getMinutes());
+    booking.setStatus("Pending");
+    booking.setTotalPrice(request.getTotalPrice());
 
-        if (availableCleaners.size() < requiredCleaners) {
-            throw new RuntimeException("Not enough cleaners available for the selected time");
-        }
-
-        // 6. Pick required number of cleaners
-        List<Cleaner> assignedCleaners = availableCleaners.subList(0, requiredCleaners);
-
-        // 7. Create booking
-        Booking booking = new Booking();
-        booking.setCustomer(customer);
-        booking.setCompanyCleaner(companyCleaner);
-        booking.setAssignedCleaners(assignedCleaners);
-        booking.setServiceType(request.getServiceType());
-        booking.setAddress(request.getAddress());
-        booking.setBookingDate(bookingDate);
-        booking.setBookingTime(startTime);
-        booking.setHours(request.getHours());
-        booking.setMinutes(request.getMinutes());
-        booking.setStatus("Pending");
-        booking.setTotalPrice(request.getTotalPrice()); // price comes from front-end
-
-        // 8. Save booking
-        return bookingRepo.save(booking);
-    }
+    return bookingRepo.save(booking);
+}
 
 
     private int getRequiredCleaners(String serviceType) {
@@ -112,7 +83,6 @@ public class BookingService implements BookingServiceInt {
             default -> throw new RuntimeException("Invalid service type: " + serviceType);
         };
     }
-
 
     public BookingResponse toDTO(Booking booking) {
         BookingResponse dto = new BookingResponse();
@@ -132,8 +102,23 @@ public class BookingService implements BookingServiceInt {
         dto.setServiceType(booking.getServiceType());
         dto.setStatus(booking.getStatus());
 
-        return dto;
+        if (booking.getAssignedCleaners() != null) {
+            dto.setAssignedCleanerIds(
+                    booking.getAssignedCleaners().stream()
+                            .map(Cleaner::getCleanerId)
+                            .collect(Collectors.toList())
+            );
+            dto.setAssignedCleanerNames(
+                    booking.getAssignedCleaners().stream()
+                            .map(Cleaner::getCleanerName)
+                            .collect(Collectors.toList())
+            );
+        } else {
+            dto.setAssignedCleanerIds(Collections.emptyList());
+            dto.setAssignedCleanerNames(Collections.emptyList());
+        }
 
+        return dto;
     }
 
     public List<Booking> getBookingsByCustomer(Long customerId) {
@@ -141,10 +126,10 @@ public class BookingService implements BookingServiceInt {
     }
 
     public List<Booking> getBookingsByCompany(Long companyCleanerId) {
-        return bookingRepo.findByCompanyCleaner_CompanyCleanerId(companyCleanerId);
+    return bookingRepo.findByCompanyCleanerWithCleaners(companyCleanerId);
     }
 
-    public Booking updateBooking(Long bookingId, BookingUpdateRequest request){
+    public Booking updateBooking(Long bookingId, BookingUpdateRequest request) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
@@ -157,7 +142,7 @@ public class BookingService implements BookingServiceInt {
         return bookingRepo.save(booking);
     }
 
-    public void cancelBooking(Long bookingId){
+    public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
@@ -165,8 +150,144 @@ public class BookingService implements BookingServiceInt {
         bookingRepo.save(booking);
     }
 
-    private boolean timesOverlap(LocalTime start1, LocalTime end1, LocalTime start2, LocalTime end2) {
+    private boolean timesOverlap(LocalTime start1, LocalTime end1,
+                                 LocalTime start2, LocalTime end2) {
         return !start1.isAfter(end2) && !end1.isBefore(start2);
     }
+
+    public List<BookingResponse> getBookingsForCompany(Long companyId) {
+        List<Booking> bookings =
+                bookingRepo.findByCompanyCleaner_CompanyCleanerId(companyId);
+
+        return bookings.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public BookingResponse acceptAndAssignCleaners(Long bookingId,
+                                                   List<Long> cleanerIds) {
+
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!"Pending".equalsIgnoreCase(booking.getStatus())) {
+            throw new RuntimeException("Only pending bookings can be accepted.");
+        }
+
+        int required = getRequiredCleaners(booking.getServiceType());
+
+        if (cleanerIds == null || cleanerIds.size() != required) {
+            throw new RuntimeException(
+                    "You must assign exactly " + required + " cleaner(s).");
+        }
+
+        CompanyCleaner company = booking.getCompanyCleaner();
+        LocalDate bookingDate = booking.getBookingDate();
+        LocalTime start = booking.getBookingTime();
+        double durationHours =
+                booking.getHours() + booking.getMinutes() / 60.0;
+        LocalTime end =
+                start.plusMinutes((long) (durationHours * 60));
+
+        List<Cleaner> selectedCleaners = new ArrayList<>();
+
+        for (Long id : cleanerIds) {
+            Cleaner c = cleanerRepo.findById(id)
+                    .orElseThrow(() ->
+                            new RuntimeException("Cleaner with id " + id + " not found"));
+
+            if (c.getCompanyCleaner() == null ||
+                    !Objects.equals(
+                            c.getCompanyCleaner().getCompanyCleanerId(),
+                            company.getCompanyCleanerId())) {
+
+                throw new RuntimeException(
+                        "Cleaner " + c.getCleanerName() + " does not belong to the booking's company.");
+            }
+
+            selectedCleaners.add(c);
+        }
+
+        for (Cleaner c : selectedCleaners) {
+            List<Booking> bookingsOnDate =
+                    bookingRepo.findByCompanyCleanerAndBookingDate(company, bookingDate);
+
+            boolean conflict = bookingsOnDate.stream()
+                    .filter(b -> "Accepted".equalsIgnoreCase(b.getStatus()))
+                    .filter(b -> b.getAssignedCleaners() != null &&
+                            b.getAssignedCleaners().contains(c))
+                    .anyMatch(b -> {
+                        LocalTime bStart = b.getBookingTime();
+                        double bDur =
+                                b.getHours() + b.getMinutes() / 60.0;
+                        LocalTime bEnd =
+                                bStart.plusMinutes((long) (bDur * 60));
+                        return timesOverlap(start, end, bStart, bEnd);
+                    });
+
+            if (conflict) {
+                throw new RuntimeException(
+                        "Cleaner " + c.getCleanerName() + " is not available for the chosen time.");
+            }
+        }
+
+        booking.setAssignedCleaners(new HashSet<>(selectedCleaners));
+        booking.setStatus("Accepted");
+
+        Booking saved = bookingRepo.save(booking);
+        return toDTO(saved);
+    }
+
+    @Transactional
+    public BookingResponse rejectBooking(Long bookingId) {
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setStatus("Rejected");
+        Booking saved = bookingRepo.save(booking);
+        return toDTO(saved);
+    }
+
+    // Assign cleaners without changing status
+        @Transactional
+        public BookingResponse assignCleanersOnly(Long bookingId, List<Long> cleanerIds) {
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        int required = getRequiredCleaners(booking.getServiceType());
+        if (cleanerIds.size() != required) {
+                throw new RuntimeException("You must assign exactly " + required + " cleaner(s).");
+        }
+
+        List<Cleaner> selectedCleaners = cleanerIds.stream()
+                .map(id -> cleanerRepo.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Cleaner not found: " + id)))
+                .toList();
+
+        booking.setAssignedCleaners(new HashSet<>(selectedCleaners));
+
+
+        bookingRepo.save(booking); // ✅ persist to DB
+
+        return toDTO(booking); // returns assigned cleaners to frontend
+        }
+
+    // Accept booking only if cleaners are assigned
+        @Transactional
+        public BookingResponse acceptBookingOnly(Long bookingId) {
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!"Pending".equalsIgnoreCase(booking.getStatus())) {
+                throw new RuntimeException("Only pending bookings can be accepted.");
+        }
+
+        booking.setStatus("Accepted");
+        bookingRepo.save(booking);
+
+        return toDTO(booking);
+}
+
 
 }
