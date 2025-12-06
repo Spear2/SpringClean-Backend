@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.project.SpringClean.dto.AssignCleanersRequest;
+import com.project.SpringClean.dto.BookingAssignRequest;
+
+
 @RestController
 @RequestMapping("/api/bookings")
 public class BookingController {
@@ -34,7 +38,8 @@ public class BookingController {
     ) {
         try {
             Booking saved = bookingService.createBooking(request, customerId);
-            return ResponseEntity.ok(saved);
+            BookingResponse dto = bookingService.toDTO(saved);
+            return ResponseEntity.ok(dto);
         } catch (Exception ex) {
             ex.printStackTrace(); // <----- ADD THIS
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -49,13 +54,14 @@ public class BookingController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/company/{companyCleanerId}/bookings")
+    @GetMapping("/company/{companyCleanerId}")
     public List<BookingResponse> getCompanyBookings(@PathVariable Long companyCleanerId) {
         return bookingService.getBookingsByCompany(companyCleanerId)
-                .stream()
-                .map(bookingService::toDTO)
-                .collect(Collectors.toList());
+                            .stream()
+                            .map(bookingService::toDTO)
+                            .collect(Collectors.toList());
     }
+
 
     @GetMapping("/customer/{customerId}")
     public List<Booking> findByCustomer(@PathVariable Long customerId) {
@@ -69,7 +75,8 @@ public class BookingController {
 
         try {
             Booking updated = bookingService.updateBooking(bookingId, req);
-            return ResponseEntity.ok(updated);
+            BookingResponse dto = bookingService.toDTO(updated);
+            return ResponseEntity.ok(dto);
 
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -88,7 +95,27 @@ public class BookingController {
         }
     }
 
+    // Assign cleaners only (without accepting the booking yet)
+    @PutMapping("/{bookingId}/assign-cleaners")
+    public ResponseEntity<?> assignCleanersOnly(
+            @PathVariable Long bookingId,
+            @RequestBody AssignCleanersRequest request) {
+        BookingResponse resp = bookingService.assignCleanersOnly(bookingId, request.getCleanerIds());
+        return ResponseEntity.ok(resp);
+    }
 
+    // Accept booking
+    @PutMapping("/{bookingId}/accept")
+    public ResponseEntity<?> acceptBooking(@PathVariable Long bookingId) {
+        BookingResponse resp = bookingService.acceptBookingOnly(bookingId);
+        return ResponseEntity.ok(resp);
+    }
 
+    // Reject booking
+    @PutMapping("/{bookingId}/reject")
+    public ResponseEntity<?> rejectBooking(@PathVariable Long bookingId) {
+        BookingResponse resp = bookingService.rejectBooking(bookingId);
+        return ResponseEntity.ok(resp);
+    }
 }
 

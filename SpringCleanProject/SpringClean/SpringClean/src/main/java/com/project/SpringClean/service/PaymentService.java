@@ -38,8 +38,10 @@ public class PaymentService {
         payment.setStatus("Paid");
         payment.setPaidAt(LocalDateTime.now());
 
+        if ("Accepted".equalsIgnoreCase(booking.getStatus())) {
         booking.setStatus("Paid");
         bookingRepo.save(booking);
+    }
 
         return paymentRepo.save(payment);
     }

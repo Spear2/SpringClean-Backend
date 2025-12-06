@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 
 @Entity
 @Data
@@ -25,13 +28,13 @@ public class Booking {
     private CompanyCleaner companyCleaner;
 
     @ManyToMany
-    @JsonBackReference
+    // @JsonBackReference
     @JoinTable(
             name = "booking_cleaners",
             joinColumns = @JoinColumn(name = "booking_id"),
             inverseJoinColumns = @JoinColumn(name = "cleaner_id")
     )
-    private List<Cleaner> assignedCleaners;
+private Set<Cleaner> assignedCleaners = new HashSet<>();
 
     private String serviceType;
     private String address;

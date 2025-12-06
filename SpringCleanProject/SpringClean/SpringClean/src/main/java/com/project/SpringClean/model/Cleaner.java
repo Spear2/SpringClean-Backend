@@ -24,4 +24,16 @@ public class Cleaner {
     private String address;
     private String password;
     private boolean available = true;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Cleaner)) return false;
+        return cleanerId != null && cleanerId.equals(((Cleaner) o).getCleanerId());
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 }

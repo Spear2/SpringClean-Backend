@@ -12,6 +12,10 @@ public interface CleanerRepository extends JpaRepository<Cleaner, Long> {
     boolean existsByEmail(String email);
     Optional<Cleaner> findByEmail(String email);
     List<Cleaner> findByCompanyCleanerAndAvailableTrue(CompanyCleaner companyCleaner);
-
-
+    List<Cleaner> findByCompanyCleaner(CompanyCleaner companyCleaner);
+    List<Cleaner> findByCompanyCleanerAndAvailableTrueAndCleanerIdIn(
+            CompanyCleaner companyCleaner,
+            List<Long> cleanerIds
+    );
+    
 }
