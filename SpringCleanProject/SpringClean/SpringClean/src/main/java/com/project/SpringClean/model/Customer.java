@@ -1,5 +1,6 @@
 package com.project.SpringClean.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,4 +20,7 @@ public class Customer {
     private String address;
     private String password;
 
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private Wallet wallet;
 }

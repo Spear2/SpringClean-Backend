@@ -3,7 +3,9 @@ package com.project.SpringClean.service;
 import com.project.SpringClean.dto.CustomerUpdateRequest;
 import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.model.Customer;
+import com.project.SpringClean.model.Wallet;
 import com.project.SpringClean.repository.CustomerRepository;
+import com.project.SpringClean.repository.WalletRepository;
 import com.project.SpringClean.serviceinterface.CustomerServiceInt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,9 @@ public class CustomerService implements CustomerServiceInt {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private WalletRepository walletRepository;
+
     @Override
     public Customer getCustomerById(Long id) {
         return customerRepository.findById(id)
@@ -21,11 +26,20 @@ public class CustomerService implements CustomerServiceInt {
     }
 
     @Override
-    public Customer registerCustomer(Customer Customer) {
-        if (customerRepository.existsByEmail(Customer.getEmail())) {
+    public Customer registerCustomer(Customer customer) {
+        if (customerRepository.existsByEmail(customer.getEmail())) {
             throw new RuntimeException("Email already registered");
         }
-        return customerRepository.save(Customer);
+        // Save customer first
+        Customer saved = customerRepository.save(customer);
+
+        // Create wallet AFTER customer exists
+        Wallet wallet = new Wallet();
+        wallet.setBalance(1000000);
+        wallet.setCustomer(saved);
+
+        saved.setWallet(wallet);
+        return customerRepository.save(customer);
     }
 
     @Override
