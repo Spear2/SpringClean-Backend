@@ -147,6 +147,7 @@ public class BookingService implements BookingServiceInt {
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         booking.setStatus("Cancelled");
+
         bookingRepo.save(booking);
     }
 

@@ -2,6 +2,7 @@ package com.project.SpringClean.service;
 
 import com.project.SpringClean.dto.PaymentRequest;
 import com.project.SpringClean.dto.PaymentResponse;
+import com.project.SpringClean.dto.TransactionHistoryResponse;
 import com.project.SpringClean.model.Booking;
 import com.project.SpringClean.model.Customer;
 import com.project.SpringClean.model.Payment;
@@ -26,10 +27,16 @@ public class PaymentService {
     @Autowired
     private CustomerRepository customerRepo;
 
-    public Payment createPayment(PaymentRequest request) {
+    @Autowired
+    private WalletService walletService;
+
+    public Payment createPayment(PaymentRequest request, Long customerId) {
 
         Booking booking = bookingRepo.findById(request.getBookingId())
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        double amount = booking.getTotalPrice();
+        walletService.deductBalance(customerId, amount);
 
         Payment payment = new Payment();
         payment.setBooking(booking);
@@ -38,11 +45,12 @@ public class PaymentService {
         payment.setStatus("Paid");
         payment.setPaidAt(LocalDateTime.now());
 
-        if ("Accepted".equalsIgnoreCase(booking.getStatus())) {
+//        if ("Accepted".equalsIgnoreCase(booking.getStatus())) {
+//        booking.setStatus("Paid");
+//        bookingRepo.save(booking);
+//    }
         booking.setStatus("Paid");
         bookingRepo.save(booking);
-    }
-
         return paymentRepo.save(payment);
     }
 
@@ -72,6 +80,22 @@ public class PaymentService {
                 .toList();
     }
 
+    public TransactionHistoryResponse toDTO(Payment payment) {
+        Booking booking = payment.getBooking();
 
+        TransactionHistoryResponse dto = new TransactionHistoryResponse();
+        dto.setPaymentId(payment.getPaymentId());
+        dto.setBookingId(booking.getBookingId());
+        dto.setAmount(payment.getAmount());
+        dto.setMethod(payment.getMethod());
+        dto.setStatus(payment.getStatus());
+        dto.setPaidAt(payment.getPaidAt());
+
+        dto.setServiceType(booking.getServiceType());
+        dto.setBookingDate(booking.getBookingDate());
+        dto.setBookingTime(booking.getBookingTime());
+        dto.setTotalPrice(booking.getTotalPrice());
+        return dto;
+    }
 
 }
