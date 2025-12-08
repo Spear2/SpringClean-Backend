@@ -135,5 +135,11 @@ public class BookingController {
         return bookingService.markInProgress(id);
     }
 
+    @GetMapping("/company/{companyId}/bookings")
+    public List<BookingResponse> getCompanyBookingsForCalendar(@PathVariable Long companyId) {
+        return bookingService.getCompanyBookingsForCalendar(companyId);
+    }
+
+
 }
 
