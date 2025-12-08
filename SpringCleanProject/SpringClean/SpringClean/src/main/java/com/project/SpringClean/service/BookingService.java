@@ -78,11 +78,11 @@ public class BookingService implements BookingServiceInt {
     booking.setStatus("Pending");
     booking.setTotalPrice(request.getTotalPrice());
 
-    if (request.isPayNow()) {
-    booking.setStatus("Paid");
-    } else {
-    booking.setStatus("Pending");
-    }
+//    if (request.isPayNow()) {
+//    booking.setStatus("Paid");
+//    } else {
+//    booking.setStatus("Pending");
+//    }
 
     return bookingRepo.save(booking);
 }
@@ -322,6 +322,8 @@ public class BookingService implements BookingServiceInt {
         return toDTO(booking);
         }
 
-
+    public List<Booking> getCleanerBookings(Long cleanerId){
+        return bookingRepo.findBookingsByCleanerId(cleanerId);
+    }
 
 }
