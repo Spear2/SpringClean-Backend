@@ -4,15 +4,20 @@ package com.project.SpringClean.controller;
 import com.project.SpringClean.dto.CleanerLoginRequest;
 import com.project.SpringClean.dto.CleanerLoginResponse;
 import com.project.SpringClean.dto.CleanerRegistration;
+import com.project.SpringClean.model.Booking;
 import com.project.SpringClean.model.Cleaner;
 
 import com.project.SpringClean.model.Customer;
+import com.project.SpringClean.repository.BookingRepository;
 import com.project.SpringClean.repository.CleanerRepository;
+import com.project.SpringClean.service.BookingService;
 import com.project.SpringClean.service.CleanerService;
 import com.project.SpringClean.service.CompanyCleanerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/cleaners")
@@ -23,6 +28,10 @@ public class CleanerController  {
 
     @Autowired
     private CleanerRepository cleanerRepository;
+    @Autowired
+    private BookingService bookingService;
+    @Autowired
+    private BookingRepository bookingRepository;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody CleanerRegistration dto) {
@@ -43,6 +52,12 @@ public class CleanerController  {
     public ResponseEntity<?> getCleaner(@PathVariable Long id) {
         Cleaner cleaner = cleanerService.getCleanerById(id);
         return ResponseEntity.ok(cleaner);
+    }
+
+    @GetMapping("/{cleanerId}/bookings")
+    public ResponseEntity<?> getCleanerAssignedBookings(@PathVariable Long cleanerId) {
+        List<Booking> bookings = bookingService.getCleanerBookings(cleanerId);
+        return ResponseEntity.ok(bookings);
     }
 
 }

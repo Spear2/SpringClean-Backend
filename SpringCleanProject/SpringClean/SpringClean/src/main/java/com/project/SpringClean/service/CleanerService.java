@@ -1,15 +1,19 @@
 package com.project.SpringClean.service;
 
 import com.project.SpringClean.dto.CleanerRegistration;
+import com.project.SpringClean.model.Booking;
 import com.project.SpringClean.model.Cleaner;
 import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.model.Customer;
+import com.project.SpringClean.repository.BookingRepository;
 import com.project.SpringClean.repository.CleanerRepository;
 import com.project.SpringClean.repository.CompanyCleanerRepository;
 import com.project.SpringClean.serviceinterface.CleanerServiceInt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @Service
 public class CleanerService implements CleanerServiceInt {
@@ -19,6 +23,7 @@ public class CleanerService implements CleanerServiceInt {
 
     @Autowired
     private CompanyCleanerRepository companyCleanerRepository;
+    private BookingRepository bookingRepository;
 
     @Override
     public Cleaner getCleanerById(Long id) {
@@ -58,4 +63,6 @@ public class CleanerService implements CleanerServiceInt {
 
         return cleaner;
     }
+
+
 }
