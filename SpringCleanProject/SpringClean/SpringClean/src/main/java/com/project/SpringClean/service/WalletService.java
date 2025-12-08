@@ -30,6 +30,13 @@ public class WalletService {
         wallet.setBalance(wallet.getBalance() - amount);
         walletRepo.save(wallet);
     }
+
+    public void addBalance(Long customerId, double amount){
+        Wallet wallet = walletRepo.findByCustomer_CustomerId(customerId)
+                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+        wallet.setBalance(wallet.getBalance() + amount);
+        walletRepo.save(wallet);
+    }
 }
 
 

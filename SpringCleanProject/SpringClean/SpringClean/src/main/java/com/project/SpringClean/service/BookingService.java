@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,12 @@ public class BookingService implements BookingServiceInt {
     private CleanerRepository cleanerRepo;
     @Autowired
     private CompanyCleanerRepository companyCleanerRepo;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private WalletService walletService;
 
     @Override
     @Transactional
@@ -142,9 +149,29 @@ public class BookingService implements BookingServiceInt {
         return bookingRepo.save(booking);
     }
 
-    public void cancelBooking(Long bookingId) {
+    public void cancelBooking(Long bookingId, Long customerId) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!booking.getCustomer().getCustomerId().equals(customerId)) {
+            throw new RuntimeException("Unauthorized cancellation attempt");
+        }
+
+        // ---- REFUND LOGIC ----
+        if (booking.getStatus().equals("Paid")) {
+
+            Payment refund = new Payment();
+            refund.setBooking(booking);     // 🔥 REQUIRED
+            refund.setAmount(booking.getTotalPrice());
+            refund.setMethod("Refund");     // optional
+            refund.setStatus("Refunded");
+            refund.setPaidAt(LocalDateTime.now());
+
+            paymentRepository.save(refund);
+
+            // Return money to wallet
+            walletService.addBalance(customerId, booking.getTotalPrice());
+        }
 
         booking.setStatus("Cancelled");
 

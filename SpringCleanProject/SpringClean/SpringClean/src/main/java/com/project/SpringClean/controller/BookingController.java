@@ -83,15 +83,15 @@ public class BookingController {
         }
     }
 
-    @DeleteMapping("/{bookingId}")
-    public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId) {
+    @DeleteMapping("/{bookingId}/{customerId}")
+    public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId, @PathVariable Long customerId) {
 
         try {
-            bookingService.cancelBooking(bookingId);
+            bookingService.cancelBooking(bookingId, customerId);
             return ResponseEntity.ok("Booking cancelled");
 
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
