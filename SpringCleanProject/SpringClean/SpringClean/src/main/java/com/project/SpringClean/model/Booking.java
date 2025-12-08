@@ -44,4 +44,7 @@ private Set<Cleaner> assignedCleaners = new HashSet<>();
     private Integer minutes;
     private String status;
     private Double totalPrice;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private boolean paid;
 }

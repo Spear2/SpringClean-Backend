@@ -19,4 +19,5 @@ public class BookingRequest {
     private Integer hours;
     private Integer minutes;
     private double totalPrice;
+    private boolean payNow;
 }

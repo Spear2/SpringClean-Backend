@@ -117,5 +117,12 @@ public class BookingController {
         BookingResponse resp = bookingService.rejectBooking(bookingId);
         return ResponseEntity.ok(resp);
     }
+
+    // Controller
+    @PutMapping("/{id}/accept-only")
+    public BookingResponse acceptBookingOnly(@PathVariable Long id) {
+        return bookingService.acceptBookingOnly(id);
+    }
+
 }
 

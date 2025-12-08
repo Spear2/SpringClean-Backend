@@ -78,6 +78,12 @@ public class BookingService implements BookingServiceInt {
     booking.setStatus("Pending");
     booking.setTotalPrice(request.getTotalPrice());
 
+    if (request.isPayNow()) {
+    booking.setStatus("Paid");
+    } else {
+    booking.setStatus("Pending");
+    }
+
     return bookingRepo.save(booking);
 }
 
@@ -199,8 +205,8 @@ public class BookingService implements BookingServiceInt {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        if (!"Pending".equalsIgnoreCase(booking.getStatus())) {
-            throw new RuntimeException("Only pending bookings can be accepted.");
+        if (!"Paid".equalsIgnoreCase(booking.getStatus())) {
+            throw new RuntimeException("Only paid bookings can be accepted.");
         }
 
         int required = getRequiredCleaners(booking.getServiceType());
@@ -301,21 +307,21 @@ public class BookingService implements BookingServiceInt {
         return toDTO(booking); // returns assigned cleaners to frontend
         }
 
-    // Accept booking only if cleaners are assigned
-        @Transactional
+        // Accept booking only if cleaners are assigned
+       @Transactional
         public BookingResponse acceptBookingOnly(Long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        if (!"Pending".equalsIgnoreCase(booking.getStatus())) {
-                throw new RuntimeException("Only pending bookings can be accepted.");
+        if (!"Pending".equalsIgnoreCase(booking.getStatus()) && !"Paid".equalsIgnoreCase(booking.getStatus())) {
+                throw new RuntimeException("Only pending or paid bookings can be accepted.");
         }
 
         booking.setStatus("Accepted");
         bookingRepo.save(booking);
-
         return toDTO(booking);
-}
+        }
+
 
 
 }
