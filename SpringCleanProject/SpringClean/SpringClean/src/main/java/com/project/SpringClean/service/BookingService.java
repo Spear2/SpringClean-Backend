@@ -322,8 +322,62 @@ public class BookingService implements BookingServiceInt {
         return toDTO(booking);
         }
 
-    public List<Booking> getCleanerBookings(Long cleanerId){
-        return bookingRepo.findBookingsByCleanerId(cleanerId);
-    }
+        public List<Booking> getCleanerBookings(Long cleanerId){
+                return bookingRepo.findBookingsByCleanerId(cleanerId);
+        }
+
+        @Transactional
+        public BookingResponse markInProgress(Long bookingId) {
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!"Accepted".equalsIgnoreCase(booking.getStatus())) {
+                throw new RuntimeException("Only accepted bookings can go In Progress.");
+        }
+
+        booking.setStatus("In Progress");
+        return toDTO(bookingRepo.save(booking));
+        }
+
+        @Transactional
+        public BookingResponse markCompleted(Long bookingId) {
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!"In Progress".equalsIgnoreCase(booking.getStatus())
+                && !"Accepted".equalsIgnoreCase(booking.getStatus())) {
+                throw new RuntimeException("Booking must be in progress to complete.");
+        }
+
+        booking.setStatus("Completed");
+        return toDTO(bookingRepo.save(booking));
+        }
+
+        public String computeCurrentStatus(Booking booking) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = LocalDateTime.of(booking.getBookingDate(), booking.getBookingTime());
+        double durationHours = booking.getHours() + booking.getMinutes() / 60.0;
+        LocalDateTime end = start.plusMinutes((long)(durationHours * 60));
+
+        String status = booking.getStatus();
+
+        switch (status.toLowerCase()) {
+                case "pending":
+                case "paid":
+                case "accepted":
+                if (now.isBefore(start)) return status; // still pending/accepted
+                else if (now.isAfter(start) && now.isBefore(end)) return "In Progress";
+                else if (now.isAfter(end)) return "Completed";
+                break;
+                case "in progress":
+                if (now.isAfter(end)) return "Completed";
+                break;
+                default:
+                return status; // cancelled, rejected, completed
+        }
+
+        return status;
+        }
+
 
 }

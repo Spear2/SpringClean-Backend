@@ -118,12 +118,21 @@ public class BookingController {
         return ResponseEntity.ok(resp);
     }
 
-
-
     // Controller
     @PutMapping("/{id}/accept-only")
     public BookingResponse acceptBookingOnly(@PathVariable Long id) {
         return bookingService.acceptBookingOnly(id);
+    }
+
+    @PutMapping("/{id}/complete")
+    public BookingResponse markCompleted(@PathVariable Long id) {
+        return bookingService.markCompleted(id);
+    }
+
+
+    @PutMapping("/{id}/in-progress")
+    public BookingResponse markInProgress(@PathVariable Long id) {
+        return bookingService.markInProgress(id);
     }
 
 }
