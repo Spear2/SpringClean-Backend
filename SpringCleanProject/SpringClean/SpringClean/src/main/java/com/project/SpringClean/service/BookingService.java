@@ -379,5 +379,17 @@ public class BookingService implements BookingServiceInt {
         return status;
         }
 
+        @Transactional
+        public List<BookingResponse> getCompanyBookingsForCalendar(Long companyId) {
+        List<Booking> bookings = bookingRepo.findByCompanyCleaner_CompanyCleanerId(companyId);
+
+        return bookings.stream()
+                .map(booking -> {
+                        BookingResponse dto = toDTO(booking);
+                        dto.setStatus(computeCurrentStatus(booking)); // real-time status
+                        return dto;
+                })
+                .collect(Collectors.toList());
+        }
 
 }
