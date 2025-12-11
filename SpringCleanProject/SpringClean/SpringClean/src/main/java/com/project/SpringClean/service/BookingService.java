@@ -78,11 +78,6 @@ public class BookingService implements BookingServiceInt {
     booking.setStatus("Pending");
     booking.setTotalPrice(request.getTotalPrice());
 
-//    if (request.isPayNow()) {
-//    booking.setStatus("Paid");
-//    } else {
-//    booking.setStatus("Pending");
-//    }
 
     return bookingRepo.save(booking);
 }
@@ -341,16 +336,17 @@ public class BookingService implements BookingServiceInt {
 
         @Transactional
         public BookingResponse markCompleted(Long bookingId) {
-        Booking booking = bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+            Booking booking = bookingRepo.findById(bookingId)
+                    .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        if (!"In Progress".equalsIgnoreCase(booking.getStatus())
-                && !"Accepted".equalsIgnoreCase(booking.getStatus())) {
-                throw new RuntimeException("Booking must be in progress to complete.");
-        }
+            if (!"In Progress".equalsIgnoreCase(booking.getStatus())
+                    && !"Accepted".equalsIgnoreCase(booking.getStatus())) {
+                    throw new RuntimeException("Booking must be in progress to complete.");
+            }
 
-        booking.setStatus("Completed");
-        return toDTO(bookingRepo.save(booking));
+            booking.setStatus("Completed");
+
+            return toDTO(bookingRepo.save(booking));
         }
 
         public String computeCurrentStatus(Booking booking) {

@@ -9,13 +9,17 @@ import com.project.SpringClean.model.Payment;
 import com.project.SpringClean.repository.BookingRepository;
 import com.project.SpringClean.repository.CustomerRepository;
 import com.project.SpringClean.repository.PaymentRepository;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
 
     @Autowired
@@ -45,39 +49,44 @@ public class PaymentService {
         payment.setStatus("Paid");
         payment.setPaidAt(LocalDateTime.now());
 
-//        if ("Accepted".equalsIgnoreCase(booking.getStatus())) {
-//        booking.setStatus("Paid");
-//        bookingRepo.save(booking);
-//    }
         booking.setStatus("Paid");
         bookingRepo.save(booking);
         return paymentRepo.save(payment);
     }
 
+    @Transactional(readOnly = true)
     public List<PaymentResponse> getPaymentsByCompany(Long companyCleanerId) {
-        // Fetch all bookings for the company
-        List<Booking> bookings = bookingRepo.findByCompanyCleaner_CompanyCleanerId(companyCleanerId);
 
-        return bookings.stream()
-                .map(booking -> {
-                    Payment payment = paymentRepo.findByBooking_BookingId(booking.getBookingId())
-                            .orElse(null);
-                    if (payment == null) return null;
+        // 1. Fetch all bookings for the company
+        List<Booking> bookings =
+                bookingRepo.findByCompanyCleaner_CompanyCleanerId(companyCleanerId);
 
-                    Customer customer = booking.getCustomer(); // booking has Customer entity
+        // 2. Convert each booking into 0..N payment responses
+        List<PaymentResponse> responses = new ArrayList<>();
 
-                    return new PaymentResponse(
-                            payment.getPaymentId(),
-                            payment.getAmount(),
-                            payment.getStatus(),
-                            payment.getPaidAt(),
-                            booking.getBookingId(),
-                            customer.getFirstName(),
-                            customer.getLastName()
-                    );
-                })
-                .filter(dto -> dto != null)
-                .toList();
+        for (Booking booking : bookings) {
+
+            List<Payment> payments =
+                    paymentRepo.findByBooking_BookingId(booking.getBookingId());
+
+            Customer customer = booking.getCustomer();
+            String firstName = customer != null ? customer.getFirstName() : "";
+            String lastName = customer != null ? customer.getLastName() : "";
+
+            for (Payment payment : payments) {
+                responses.add(new PaymentResponse(
+                        payment.getPaymentId(),
+                        payment.getAmount(),
+                        payment.getStatus(),
+                        payment.getPaidAt(),
+                        booking.getBookingId(),
+                        firstName,
+                        lastName
+                ));
+            }
+        }
+
+        return responses;
     }
 
     public TransactionHistoryResponse toDTO(Payment payment) {
