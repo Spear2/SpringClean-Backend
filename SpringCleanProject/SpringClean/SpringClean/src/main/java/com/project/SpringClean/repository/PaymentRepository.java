@@ -40,4 +40,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT COUNT(p) FROM Payment p JOIN p.booking b JOIN b.assignedCleaners c " +
             "WHERE c.cleanerId = :cleanerId AND p.status = 'Paid' AND b.status != 'Completed'")
     Long getPendingPaymentsCount(Long cleanerId);
+
+    @Query("SELECT p FROM Payment p " +
+       "WHERE p.booking.companyCleaner.companyCleanerId = :companyId " +
+       "AND p.status = 'Paid'")
+     List<Payment> findPaymentsForCompany(Long companyId);
 }

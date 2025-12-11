@@ -19,7 +19,20 @@ public class CompanyCleaner {
     private String phoneNumber;
     private String address;
     private String password;
+    private String tagline;
+    private String about; 
 
+    
+    @ElementCollection
+    private List<String> services;
+
+     @ElementCollection
+    private List<String> whyUs;
+
+    
+    private String rating;         // NEW
+    private String employees;      // NEW
+    private String projects;
     @OneToMany(mappedBy = "companyCleaner", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Cleaner> cleaners;

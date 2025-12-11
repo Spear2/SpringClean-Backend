@@ -113,17 +113,22 @@ public class ReviewController {
         return res;
     }
 
-    @GetMapping("/company/{companyId}")
-    public List<ReviewResponse> getCompanyReviews(@PathVariable Long companyId) {
-        return reviewService.getReviewsByCompany(companyId)
-                .stream()
-                .map(reviewService::toDTO)
-                .toList();
-    }
+    // @GetMapping("/company/{companyId}")
+    // public List<ReviewResponse> getCompanyReviews(@PathVariable Long companyId) {
+    //     return reviewService.getReviewsByCompany(companyId)
+    //             .stream()
+    //             .map(reviewService::toDTO)
+    //             .toList();
+    // }
 
     @GetMapping("/cleaner/{cleanerId}")
     public List<ReviewResponse> getCleanerReviews(@PathVariable Long cleanerId) {
         return reviewService.getReviewsByCleaner(cleanerId);
+    }
+
+    @GetMapping("/company/{companyId}")
+    public List<Reviews> getReviewsForCompany(@PathVariable Long companyId) {
+        return reviewService.getReviewsForCompany(companyId);
     }
 
 

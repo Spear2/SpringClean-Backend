@@ -22,5 +22,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findBookingsByCleanerId(Long cleanerId);
     @Query("SELECT b FROM Booking b JOIN b.assignedCleaners c WHERE c.cleanerId = :cleanerId AND b.customer.customerId = :customerId")
     List<Booking> findBookingsByCleanerAndCustomer(Long cleanerId, Long customerId);
+    Long countByCompanyCleaner(CompanyCleaner company);
+
 }
 
