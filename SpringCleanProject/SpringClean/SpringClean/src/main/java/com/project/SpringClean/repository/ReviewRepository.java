@@ -9,7 +9,8 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Reviews, Long> {
     List<Reviews> findByCustomer_customerId(Long customerId);
     List<Reviews> findByCompany_companyCleanerId(Long companyCleanerId);
-    List<Reviews> findByCleaner_cleanerId(Long cleanerId);
+    List<Reviews> findByCleaner_CleanerId(Long cleanerId);
+    List<Reviews> findByCompany_CompanyCleanerId(Long companyCleanerId);
 
     @Query("SELECT AVG(r.rating) FROM Reviews r WHERE r.company.companyCleanerId = :companyId")
     Double getAvgRatingByCompany(Long companyId);

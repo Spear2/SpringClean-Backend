@@ -1,6 +1,7 @@
 package com.project.SpringClean.controller;
 
 import com.project.SpringClean.dto.ReviewRequest;
+import com.project.SpringClean.dto.ReviewResponse;
 import com.project.SpringClean.model.Cleaner;
 import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.model.Customer;
@@ -8,6 +9,7 @@ import com.project.SpringClean.model.Reviews;
 import com.project.SpringClean.repository.CleanerRepository;
 import com.project.SpringClean.repository.CompanyCleanerRepository;
 import com.project.SpringClean.repository.CustomerRepository;
+import com.project.SpringClean.repository.ReviewRepository;
 import com.project.SpringClean.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -37,6 +39,9 @@ public class ReviewController {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -107,6 +112,20 @@ public class ReviewController {
 
         return res;
     }
+
+    @GetMapping("/company/{companyId}")
+    public List<ReviewResponse> getCompanyReviews(@PathVariable Long companyId) {
+        return reviewService.getReviewsByCompany(companyId)
+                .stream()
+                .map(reviewService::toDTO)
+                .toList();
+    }
+
+    @GetMapping("/cleaner/{cleanerId}")
+    public List<ReviewResponse> getCleanerReviews(@PathVariable Long cleanerId) {
+        return reviewService.getReviewsByCleaner(cleanerId);
+    }
+
 
 }
 
