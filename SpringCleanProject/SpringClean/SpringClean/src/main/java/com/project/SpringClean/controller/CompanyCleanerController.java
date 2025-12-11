@@ -7,6 +7,8 @@ import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.repository.CompanyCleanerRepository;
 import com.project.SpringClean.security.JwtUtil;
 import com.project.SpringClean.service.CompanyCleanerService;
+
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -80,6 +82,27 @@ public class CompanyCleanerController {
         List<Cleaner> cleaners = cleanerRepo.findByCompanyCleaner(company);
         return ResponseEntity.ok(cleaners);
     }
+
+     @PutMapping("/update/{id}")
+    public CompanyCleaner updateCompany(
+            @PathVariable Long id,
+            @RequestBody CompanyCleaner updated
+    ) {
+        return companyCleanerService.updateCompanyProfile(id, updated);
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<CompanyCleaner> getCurrentCompany(HttpSession session) {
+        Long companyId = (Long) session.getAttribute("companyId");
+        if (companyId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        CompanyCleaner company = companyCleanerService.getCompanyCleanerById(companyId);
+        company = companyCleanerService.enrichCompanyStats(company);
+        return ResponseEntity.ok(company);
+    }
+
 
 
 

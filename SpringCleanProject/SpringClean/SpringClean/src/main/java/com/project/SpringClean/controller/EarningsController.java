@@ -1,6 +1,7 @@
 package com.project.SpringClean.controller;
 
 import com.project.SpringClean.dto.EarningsDTO;
+import com.project.SpringClean.dto.CompanyEarningsDTO;
 import com.project.SpringClean.dto.EarningsSummaryDTO;
 import com.project.SpringClean.service.EarningsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,10 @@ public class EarningsController {
     @GetMapping("/cleaner/{cleanerId}/summary")
     public EarningsSummaryDTO getEarningsSummary(@PathVariable Long cleanerId) {
         return earningsService.getEarningsSummary(cleanerId);
+    }
+
+    @GetMapping("/company/{companyId}/summary")
+    public CompanyEarningsDTO getCompanySummary(@PathVariable Long companyId) {
+        return earningsService.getCompanyEarningsSummary(companyId);
     }
 }

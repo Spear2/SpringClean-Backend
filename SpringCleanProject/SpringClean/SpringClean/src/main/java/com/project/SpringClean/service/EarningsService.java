@@ -1,5 +1,6 @@
 package com.project.SpringClean.service;
 
+import com.project.SpringClean.dto.CompanyEarningsDTO;
 import com.project.SpringClean.dto.EarningsDTO;
 import com.project.SpringClean.dto.EarningsSummaryDTO;
 import com.project.SpringClean.model.Payment;
@@ -74,5 +75,17 @@ public class EarningsService {
                 completedJobs != null ? completedJobs : 0,
                 pendingPayments != null ? pendingPayments : 0
         );
+    }
+
+    public CompanyEarningsDTO getCompanyEarningsSummary(Long companyId) {
+    List<Payment> payments = paymentRepository.findPaymentsForCompany(companyId);
+
+    double totalRevenue = payments.stream()
+        .mapToDouble(Payment::getAmount)
+        .sum();
+
+    double companyCommission = totalRevenue * COMPANY_COMMISSION_RATE;
+
+    return new CompanyEarningsDTO(companyCommission, totalRevenue);
     }
 }
