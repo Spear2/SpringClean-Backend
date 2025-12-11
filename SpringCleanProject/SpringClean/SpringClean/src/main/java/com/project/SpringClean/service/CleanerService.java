@@ -64,5 +64,8 @@ public class CleanerService implements CleanerServiceInt {
         return cleaner;
     }
 
+    public List<Cleaner> getAllCleaners() {
+        return cleanerRepository.findAll();
+    }
 
 }

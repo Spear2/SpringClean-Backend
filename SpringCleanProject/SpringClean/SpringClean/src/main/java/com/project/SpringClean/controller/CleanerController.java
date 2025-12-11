@@ -7,6 +7,7 @@ import com.project.SpringClean.dto.CleanerRegistration;
 import com.project.SpringClean.model.Booking;
 import com.project.SpringClean.model.Cleaner;
 
+import com.project.SpringClean.model.CompanyCleaner;
 import com.project.SpringClean.model.Customer;
 import com.project.SpringClean.repository.BookingRepository;
 import com.project.SpringClean.repository.CleanerRepository;
@@ -58,6 +59,11 @@ public class CleanerController  {
     public ResponseEntity<?> getCleanerAssignedBookings(@PathVariable Long cleanerId) {
         List<Booking> bookings = bookingService.getCleanerBookings(cleanerId);
         return ResponseEntity.ok(bookings);
+    }
+
+    @GetMapping
+    public List<Cleaner> getAllCleaners() {
+        return cleanerService.getAllCleaners();
     }
 
 }
